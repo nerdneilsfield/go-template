@@ -1,3 +1,5 @@
+version: "2"
+
 linters:
   enable:
     - gofmt
@@ -8,6 +10,12 @@ linters:
     - staticcheck
     - gosimple
     - ineffassign
+  settings:
+    gofmt:
+      simplify: true
+    govet:
+      enable:
+        - shadow
 
 run:
   timeout: 5m
@@ -17,9 +25,3 @@ issues:
     - path: _test\.go
       linters:
         - errcheck
-
-linters-settings:
-  gofmt:
-    simplify: true
-  govet:
-    shadow: true
