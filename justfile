@@ -6,7 +6,7 @@ default:
 
 # 构建 Golang 二进制文件
 build:
-    go build -ldflags "-X main.version=$(git describe --abbrev=0 --tags)" -o {{projectname}}
+    CGO_ENABLED=0 go build -ldflags "-X main.version=$(git describe --abbrev=0 --tags)" -o {{projectname}}
 
 # 安装 Golang 二进制文件
 install:
@@ -22,7 +22,7 @@ bootstrap:
 
 # 运行测试并显示覆盖率
 test: clean
-    go test --cover -parallel=1 -v -coverprofile=coverage.out ./...
+    CGO_ENABLED=0 go test --cover -parallel=1 -v -coverprofile=coverage.out ./...
     go tool cover -func=coverage.out | sort -rnk3
 
 # 清理环境
@@ -31,21 +31,38 @@ clean:
 
 # 显示测试覆盖率
 cover:
-    go test -v -race $(go list ./... | grep -v /vendor/) -v -coverprofile=coverage.out
+    CGO_ENABLED=0 go test -v -race $(go list ./... | grep -v /vendor/) -v -coverprofile=coverage.out
     go tool cover -func=coverage.out
 
 # 格式化 Go 文件
 fmt:
-    gofumpt -w .
-    gci write .
+    gofumpt -l -w .
+    gofmt -w .
+
+# 检查 Go 文件格式
+fmt-check:
+    test -z "$(gofumpt -l .)" || { echo "gofumpt: files need formatting"; exit 1; }
+    test -z "$(gofmt -l .)" || { echo "gofmt: files need formatting"; exit 1; }
+
+# 运行 go vet
+vet:
+    go vet ./...
 
 # 运行 linter
 lint:
-    golangci-lint run -c .golang-ci.yml
+    golangci-lint run -c .golangci.yml
+
+# 运行全部检查（fmt、lint、vet、test、release config）
+check: fmt-check lint vet test
+    goreleaser check
+
+# 校验 goreleaser 配置
+release-check:
+    goreleaser check
 
 # 测试发布
 release-test:
-    goreleaser release  --snapshot --clean
+    goreleaser release --snapshot --clean
 
 # 运行 pre-commit 钩子（已注释）
 # pre-commit:

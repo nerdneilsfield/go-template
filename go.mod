@@ -1,6 +1,6 @@
 module github.com/nerdneilsfield/go-template
 
-go 1.23.2
+go 1.27.1
 
 require (
 	github.com/nerdneilsfield/shlogin v0.0.0-20241021135044-691c056cec51

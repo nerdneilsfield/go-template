@@ -30,6 +30,14 @@ builds:
       - arm64
     overrides:
       - goos: linux
+        goarch: amd64
+        ldflags:
+          - -s -w -extldflags "-static"
+          - -X main.version={{ .Version }}
+          - -X main.buildTime={{ .Date }}
+          - -X main.gitCommit={{ .FullCommit }}
+      - goos: linux
+        goarch: arm64
         ldflags:
           - -s -w -extldflags "-static"
           - -X main.version={{ .Version }}
@@ -38,11 +46,11 @@ builds:
 
 archives:
   -
-    builds:
+    ids:
       - go-template
     format_overrides:
       - goos: windows
-        format: zip
+        formats: [zip]
     # files:
     #   - "config_example.toml"
 
