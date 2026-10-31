@@ -1,16 +1,17 @@
-FROM golang:1.27-alpine AS build
+FROM golang:1.27.3-alpine AS build
 
+ARG VERSION=dev
 WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . ./
-RUN CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o /out/go-template ./
+RUN CGO_ENABLED=0 go build -trimpath \
+    -ldflags "-s -w -X github.com/nerdneilsfield/go-template/internal/buildinfo.Version=${VERSION}" \
+    -o /out/go-template ./
 
-FROM alpine:3.24
+FROM gcr.io/distroless/static-debian13:nonroot
 
-RUN addgroup -S app && adduser -S app -G app
-USER app
-
+USER nonroot:nonroot
 WORKDIR /app
 COPY --from=build /out/go-template /app/go-template
 

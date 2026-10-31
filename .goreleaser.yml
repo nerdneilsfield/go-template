@@ -2,11 +2,6 @@ version: 2
 env:
   - CGO_ENABLED=0
 
-# before:
-#   hooks:
-#     - ./scripts/manpages.sh
-#     - ./scripts/completions.sh
-
 builds:
   -
     id: go-template
@@ -16,43 +11,25 @@ builds:
     mod_timestamp: "{{ .CommitTimestamp }}"
     ldflags:
       - -s -w
-      - -X main.version={{ .Version }}
-      - -X main.buildTime={{ .Date }}
-      - -X main.gitCommit={{ .FullCommit }}
+      - -X github.com/nerdneilsfield/go-template/internal/buildinfo.Version={{.Version}}
+      - -X github.com/nerdneilsfield/go-template/internal/buildinfo.Commit={{.FullCommit}}
+      - -X github.com/nerdneilsfield/go-template/internal/buildinfo.Date={{.Date}}
     goos:
       - linux
       - darwin
       - windows
-      - freebsd
     goarch:
-      - "386"
       - amd64
       - arm64
-    overrides:
-      - goos: linux
-        goarch: amd64
-        ldflags:
-          - -s -w -extldflags "-static"
-          - -X main.version={{ .Version }}
-          - -X main.buildTime={{ .Date }}
-          - -X main.gitCommit={{ .FullCommit }}
-      - goos: linux
-        goarch: arm64
-        ldflags:
-          - -s -w -extldflags "-static"
-          - -X main.version={{ .Version }}
-          - -X main.buildTime={{ .Date }}
-          - -X main.gitCommit={{ .FullCommit }}
 
 archives:
   -
     ids:
       - go-template
+    formats: [tar.gz]
     format_overrides:
       - goos: windows
         formats: [zip]
-    # files:
-    #   - "config_example.toml"
 
 release:
   github:

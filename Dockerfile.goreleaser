@@ -1,10 +1,8 @@
-FROM alpine:3.24
+FROM gcr.io/distroless/static-debian13:nonroot
 
 ARG TARGETPLATFORM
 
-RUN addgroup -S app && adduser -S app -G app
-USER app
-
+USER nonroot:nonroot
 WORKDIR /app
 COPY ${TARGETPLATFORM}/go-template /app/go-template
 
